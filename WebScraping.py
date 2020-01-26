@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 import requests
 
 # I put here my own blog url ,you can change it.
-url="https://getpython.wordpress.com/"
+url="http://aogosto.com.br/categoria-produto/produtos/"
 
 #Requests module use to data from given url
 source=requests.get(url)
@@ -26,14 +26,14 @@ soup=BeautifulSoup(source.text,'html')
 title=soup.find('title') # place your html tagg in parentheses that you want to find from html.
 print("this is with html tags :",title)
 
-qwery=soup.find('h1') # here i find first h1 tagg in my website using find operation.
+qwery=soup.find('div') # here i find first h1 tagg in my website using find operation.
 
 #use .text for extract only text without any html tags
-print("this is without html tags:",qwery.text) 
+print("this is without div tags:",qwery.text) 
 
 
 links=soup.find('a') #i extarcted link using "a" tag
-print(links)
+#print(links)
 
 
 # ## extarct data from innerhtml 
@@ -53,16 +53,16 @@ total_links=len(many_link) # len function is use to calculate length of your arr
 print("total links in my website :",total_links)
 print()
 for i in many_link[:6]: # here i use slicing to fetch only first 6 links from rest of them.
-    print(i)
+    print(i.encode())
 
 second_link=many_link[1] #here i fetch second link which place on 1 index number in many_links.
 print(second_link)
 print()
 print("href is :",second_link['href']) #only href link is extracted from ancor tag
 
-
+'''
 # select div tag from second link
-nested_div=second_link.find('div')
+nested_div=second_link.find('article')
 # As you can see div element extarcted , it also have inner elements
 print(nested_div)
 print()
@@ -93,4 +93,4 @@ overview=soup.find_all('table',class_='infobox vevent')
 for z in overview:
     print(z.text)
     
-
+'''
