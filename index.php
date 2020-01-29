@@ -2,8 +2,22 @@
 error_reporting(0);
 require_once('database.php');
 define('USER_AGENT', 'Googlebot/2.1 (http://www.googlebot.com/bot.html)');
-define('TARGET_URL', 'https://emprego.sapo.pt/emprego/ofertas.htm/pais/portugal/distrito/todoopais/palavras-chave/KEY_WORD/data/todos/pagina/NUMBER_CATEGORY');
-//$target_url = "https://emprego.sapo.pt/emprego/ofertas.htm/pais/portugal/distrito/todoopais/data/todos/pagina/NUMBER_CATEGORY/categoria/informatica-e-tecnologias";
+define('TARGET_URL', 'https://aogosto.com.br/categoria-produto/produtos/page/NUMBER_CATEGORY/');
+// define('TARGET_URL', 'https://emprego.sapo.pt/emprego/ofertas.htm/pais/portugal/distrito/todoopais/palavras-chave/KEY_WORD/data/todos/pagina/NUMBER_CATEGORY');
+// $target_url = "https://emprego.sapo.pt/emprego/ofertas.htm/pais/portugal/distrito/todoopais/data/todos/pagina/NUMBER_CATEGORY/categoria/informatica-e-tecnologias";
+
+function after($self, $inthat){
+	if (!is_bool(strpos($inthat, $self)))
+		return substr($inthat, strpos($inthat,$self)+strlen($self));
+};
+
+function before($self, $inthat){
+	return substr($inthat, 0, strpos($inthat, $self));
+};
+
+function between($self, $that, $inthat){
+	return before ($that, after($self, $inthat));
+};
 
 function request($url){
     $ch = curl_init();
@@ -35,17 +49,17 @@ function getUrls($html) {
     // grab all the on the page
     $xpath = new DOMXPath($dom);
     $hrefs = $xpath->evaluate("/html/body//a");
-    $size = intval($xpath->query('/html/body//span[contains(@id,"ctl00_ContentPlaceHolderMain_numOffersTop")]')->item(0)->nodeValue);
-    
+    $size = $xpath->query('/html/body//p[contains(@class,"woocommerce-result-count")]')->item(0)->nodeValue;
+    $size = between('de ', ' resultados', $size);
     $links = [];
     
     for ($i = 0; $i < $hrefs->length; $i++) {
         $href = $hrefs->item($i);
         $url = $href->getAttribute('href');
-        
-        if(strpos($url, 'anuncio/') && !strpos($url, 'emprego.sapo.pt')):
-            $links[] = "https://emprego.sapo.pt" . $url;
-        elseif(strpos($url, 'anuncio/')):
+        if(strpos($url, 'produto/') && !strpos($url, '/page/')):
+            $links[] = $url;
+             echo $url . "\n";
+        elseif(strpos($url, 'produto/')):
             $links[] = $url;
         endif;
     }
@@ -97,7 +111,6 @@ function getInfo($xpath){
 
 function main($i, $term) {
     $url = str_replace('NUMBER_CATEGORY', $i, TARGET_URL);
-    $url = str_replace('KEY_WORD', $term, $url);
     
     echo "\nURL Principal = $url ";
     $html = request($url);
