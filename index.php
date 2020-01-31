@@ -75,12 +75,13 @@ function getContent($html) {
     // grab all the on the page
     $xpath = new DOMXPath($dom);
     
-    $info = getInfo($xpath);
+    // $info = getInfo($xpath);
+    $info = NULL;
     
     return [
-        "title"     => $xpath->query('/html/body//div[contains(@class,"maincontent")]//h2')->item(0)->nodeValue,
+        "title"     => $xpath->query('/html/body//h1[contains(@class,"product_title")]')->item(0)->nodeValue,
         "info"      => $info,
-        "content"   => clear($xpath->query('/html/body//div[contains(@id,"ctl00_ContentPlaceHolderMain_emprego")]')->item(0)->nodeValue),
+        "content"   => $xpath->query('/html/body//div[contains(@class,"woocommerce-product-details__short-description")]')->item(0)->textContent,
     ];
 }
 
@@ -119,21 +120,21 @@ function main($i, $term) {
     $size = $resp['size'];
     foreach($links as $link) {
         $html = request($link);
-        $jobDetails = getContent($html);
-        $jobDetails['url'] = $link;
-        echo "\n$link - ".  insert($jobDetails);
+        /*@param titlesAndContent - resposta a ser inserida no banco.*/
+        $titlesAndContent = getContent($html);
+        var_dump($titlesAndContent);
     }
     return $size;
 }
 
 
-$search = ['html', 'css', 'javascript', 'wordpress', 'python', 'php', 'react', 'vue', 'cordova', 'developer', 'desenvolvedor', 'web+developer', 'programador'];
+$search = ['html'];
 
 foreach($search as $key => $term){
     echo "\n\n\nBusca para $term";
     $i = 1;
     $size = main($i, $term);
-    $size = ceil($size / 20);
+    $size = ceil($size / 16);
     $i++;
     while($i <= $size) {
        $resp = main($i, $term);
