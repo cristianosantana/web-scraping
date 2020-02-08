@@ -58,13 +58,14 @@ function getUrls($html) {
         $url = $href->getAttribute('href');
         if(strpos($url, 'produto/') && !strpos($url, '/page/')):
             $links[] = $url;
-             echo $url . "\n";
         elseif(strpos($url, 'produto/')):
             $links[] = $url;
         endif;
     }
+
+    $result = array_unique($links);        
     
-    return ['links' => $links, 'size' => $size];
+    return ['links' => $result, 'size' => $size];
 }
 
 function getContent($html) {
@@ -75,14 +76,12 @@ function getContent($html) {
     // grab all the on the page
     $xpath = new DOMXPath($dom);
     
-    // $info = getInfo($xpath);
-    $info = NULL;
+    $title = $xpath->query('/html/body//h1[contains(@class,"product_title")]')->item(0)->nodeValue;
+    $content = $xpath->query('/html/body//div[contains(@class,"woocommerce-product-details__short-description")]')->item(0)->textContent;
     
-    return [
-        "title"     => $xpath->query('/html/body//h1[contains(@class,"product_title")]')->item(0)->nodeValue,
-        "info"      => $info,
-        "content"   => $xpath->query('/html/body//div[contains(@class,"woocommerce-product-details__short-description")]')->item(0)->textContent,
-    ];
+    if($title != null && $content != null) {
+        return [ "title" => $title, "content" => $content ];
+    }
 }
 
 function remove_emoji($text){
@@ -121,8 +120,10 @@ function main($i, $term) {
     foreach($links as $link) {
         $html = request($link);
         /*@param titlesAndContent - resposta a ser inserida no banco.*/
-        $titlesAndContent = getContent($html);
-        var_dump($titlesAndContent);
+        if(getContent($html) != null ) {
+            $titlesAndContent = getContent($html);
+            var_dump($titlesAndContent);
+        }
     }
     return $size;
 }
