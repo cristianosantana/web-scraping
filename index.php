@@ -123,6 +123,15 @@ function main($i, $term) {
         if(getContent($html) != null ) {
             $titlesAndContent = getContent($html);
             var_dump($titlesAndContent);
+            // Abre ou cria o arquivo aogosto.txt
+            // "a" representa que o arquivo é aberto para ser escrito
+            $fp = fopen("aogosto.txt", "a");
+            
+            // Escreve "exemplo de escrita" no aogosto.txt
+            $escreve = fwrite($fp, $titlesAndContent["title"] . " - " . $titlesAndContent["content"] . "\n\n" );
+            
+            // Fecha o arquivo
+            fclose($fp);
         }
     }
     return $size;
